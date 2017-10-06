@@ -1,0 +1,57 @@
+<H3 style="display: flex; justify-content: space-between; max-width: 400px;">
+  <span>Dependencies</span>
+  <ng-container [ngSwitch]="dependencies.loadingPackageeInfo">
+    <button *ngSwitchCase="false" type="button" (click)="refresh()">Refresh</button>
+    <span *ngSwitchCase="true">Loading...</span>
+  </ng-container>
+</H3>
+
+
+<p>last update: {{dependencies.lastUpdate}}</p>
+<section style="max-width: 400px;">
+  <div *ngFor="let dependency of dependencies; index as i" style="display: flex; justify-content: space-between">
+    <div><button type="button" (click)="removeDependency(dependency.name)" title="remove">X</button> {{dependency.name}}{{dependency.tag ? '@' + dependency.tag : ''}}</div>
+    <ng-container [ngSwitch]="dependency.registryVersion && (dependency.registryVersion !== dependency.referenceVersion)">
+      <div *ngSwitchCase="false" class="dependency-eq">{{dependency.referenceVersion}}</div>
+      <div *ngSwitchCase="true" class="dependency-neq">
+        {{dependency.referenceVersion}} ≠ {{dependency.registryVersion}}
+        <button type="button" title="update" (click)="updateDependency(i)">V</button>
+      </div>
+    </ng-container>
+  </div>
+</section>
+
+<section>
+  <div style="border-top: 1px dashed black; margin: 20px 0 5px 0;"></div>
+  <form #dependencyForm="ngForm" style="display: flex; flex-direction: column;" (submit)="addDependency()" novalidate>
+    <label for="name" style="padding:5px; display: flex; justify-content: space-between">
+      <span>name
+        <span style="color: orangered" *ngIf="name.invalid && name.errors.required &&
+                                                (dependencyForm.submitted || name.dirty || name.touched)">
+          required.
+        </span>
+      </span>
+      <input required [(ngModel)]="dependencyToAdd.name" id="name" name="name" #name="ngModel">
+    </label>
+
+    <label for="tag" style="padding:5px; display: flex; justify-content: space-between">
+      <span>tag</span><input
+                              [(ngModel)]="dependencyToAdd.tag" id="tag" name="tag" #tag="ngModel">
+    </label>
+    <label for="referenceVersion" style="padding:5px; display: flex; justify-content: space-between">
+      <span>referenceVersion
+        <span style="color: orangered" *ngIf="referenceVersion.invalid && referenceVersion.errors.required &&
+                                            (dependencyForm.submitted || referenceVersion.dirty || referenceVersion.touched) ">
+          required.
+        </span>
+      </span>
+      <input required [(ngModel)]="dependencyToAdd.referenceVersion" id="referenceVersion" name="referenceVersion" #referenceVersion="ngModel">
+
+    </label>
+    <div style="margin-top: 15px; display: flex; justify-content: center">
+      <button type="reset">Reset</button>
+      <div style="width: 6px;"></div>
+      <button type="submit">Add dependency</button>
+    </div>
+  </form>
+</section>
